@@ -15,4 +15,5 @@ let
 in {
   testGeneration = call ./test-generation.nix;
   testOverriding = call ./test-overriding.nix;
+  testImportFromDerivation = call ./test-import-from-derivation.nix;
 }
