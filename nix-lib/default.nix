@@ -59,6 +59,12 @@ let
     inherit (pkgs) stdenv nodejs;
   };
 
+  buildYarnPackage = import ./buildYarnPackage.nix {
+    inherit (pkgs) stdenv nodejs;
+    inherit buildNodeDeps linkNodeDeps yarn2nix
+            callYarnLock callPackageJson;
+  };
+
   # Link together a `node_modules` folder that can be used
   # by npm’s module system to call dependencies.
   # Also link executables of all dependencies into `.bin`.
@@ -181,5 +187,5 @@ let
 in {
   inherit buildNodeDeps linkNodeDeps buildNodePackage
           callTemplate removePrefixes callYarnLock
-          callPackageJson;
+          callPackageJson buildYarnPackage;
 }
