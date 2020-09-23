@@ -110,7 +110,7 @@ let
 
                 for e in $files; do
                   targetfile="$targetdir/$(basename "$e")"
-                  [[ -e "$targetfile" ]] || ln -s "$e" "$targetfile"
+                  [[ -e "$targetfile" ]] || ln -sL "$(realpath "$e")" "$targetfile"
                 done
               done
             fi
