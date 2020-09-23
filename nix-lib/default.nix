@@ -90,7 +90,30 @@ let
             echo "linking node dependency ${formatKey dep.key}"
             ${ # we need to create the scope folder, otherwise ln fails
                lib.optionalString hasScope ''mkdir -p "${parentfolder}"'' }
-            ln -sT ${dep.drv} "${subfolder}"
+            [[ -e "${subfolder}" ]] || \
+              ln -sT ${dep.drv} "${subfolder}"
+            if [[ -e "${dep.drv}/node_modules" ]]; then
+              echo "linking dependencies of node dependency ${formatKey dep.key}"
+              for f in "${dep.drv}/node_modules/"*; do
+                depname="$(basename "$f")"
+                if echo "$depname" | grep '^@' > /dev/null; then
+                  echo "Linking scope $depname"
+                  files="$f"/*
+                  targetdir="$out/$depname"
+                else
+                  echo "Linking $depname"
+                  files="$f"
+                  targetdir="$out"
+                fi
+
+                mkdir -p "$targetdir"
+
+                for e in $files; do
+                  targetfile="$targetdir/$(basename "$e")"
+                  [[ -e "$targetfile" ]] || ln -s "$e" "$targetfile"
+                done
+              done
+            fi
             ${yarn2nix}/bin/node-package-tool \
               link-bin \
               --to=$out/.bin \
